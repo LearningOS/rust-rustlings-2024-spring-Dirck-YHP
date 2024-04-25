@@ -2,13 +2,13 @@
 	single linked list merge
 	This problem requires you to merge two ordered singly linked lists into one ordered singly linked list
 */
-// I AM NOT DONE
 
 use std::fmt::{self, Display, Formatter};
 use std::ptr::NonNull;
 use std::vec::*;
 
-#[derive(Debug)]
+
+#[derive(Debug, Clone, Copy)]
 struct Node<T> {
     val: T,
     next: Option<NonNull<Node<T>>>,
@@ -22,7 +22,7 @@ impl<T> Node<T> {
         }
     }
 }
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 struct LinkedList<T> {
     length: u32,
     start: Option<NonNull<Node<T>>>,
@@ -69,15 +69,45 @@ impl<T> LinkedList<T> {
             },
         }
     }
-	pub fn merge(list_a:LinkedList<T>,list_b:LinkedList<T>) -> Self
-	{
-		//TODO
-		Self {
-            length: 0,
-            start: None,
-            end: None,
+
+	pub fn merge(list_a: LinkedList<T>, list_b: LinkedList<T>) -> Self
+    where
+        T: std::cmp::PartialOrd + Clone,
+    {
+        //TODO
+        let mut a_node = list_a.start;
+        let mut b_node = list_b.start;
+        let mut list: LinkedList<T> = LinkedList::new();
+        while a_node.is_some() || b_node.is_some() {
+            if a_node.is_none() {
+                unsafe {
+                    list.add(b_node.unwrap().as_ref().val.clone());
+                    b_node = b_node.unwrap().as_ref().next;
+                }
+            } else if b_node.is_none() {
+                unsafe {
+                    list.add(a_node.unwrap().as_ref().val.clone());
+                    a_node = a_node.unwrap().as_ref().next;
+                }
+            } else {
+                unsafe {
+                    let a_val = a_node.unwrap().as_ref().val.clone();
+                    let b_val = b_node.unwrap().as_ref().val.clone();
+                    if a_val < b_val {
+                        list.add(a_val);
+                        a_node = a_node.unwrap().as_ref().next;
+                    } else {
+                        list.add(b_val);
+                        b_node = b_node.unwrap().as_ref().next;
+                    }
+                }
+            }
+
+            list.length += 1;
         }
-	}
+
+        list
+    }
 }
 
 impl<T> Display for LinkedList<T>
